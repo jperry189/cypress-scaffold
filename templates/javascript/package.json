@@ -1,0 +1,16 @@
+{
+  "name": "my-cypress-project",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "cy:run:chrome": "cypress run --browser chrome",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "cypress": "^15.0.0",
+    "prettier": "^3.6.2"
+  }
+}
