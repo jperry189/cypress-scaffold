@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build and compilation outputs
+dist/
+build/
+*.tsbuildinfo
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows system files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs & debugging
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment and secrets
+.env
+.env.local
+.env.*.local
+
+# Editor directories (personal workspace settings)
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Test coverage & Cypress run artifacts (if running tests inside root)
+coverage/
+cypress/videos/
+cypress/screenshots/
