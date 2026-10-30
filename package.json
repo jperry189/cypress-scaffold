@@ -1,6 +1,6 @@
 {
   "name": "@solirius/create-cypress",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "CLI to scaffold a Cypress test project",
   "keywords": [
     "create",
@@ -20,8 +20,10 @@
   ],
   "scripts": {
     "build": "tsc",
+    "check:published-version": "node scripts/check-published-version.js",
     "format": "prettier --write \"src/**/*.ts\" \"bin/**/*.js\" \"templates/**/*.{js,mjs,ts,json}\" \"*.js\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"bin/**/*.js\" \"templates/**/*.{js,mjs,ts,json}\" \"*.js\"",
+    "prepare": "husky",
     "prepublishOnly": "npm run build"
   },
   "publishConfig": {
@@ -34,6 +36,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.20.5",
+    "husky": "^9.1.7",
     "prettier": "^3.9.10",
     "typescript": "^5.9.3"
   },
