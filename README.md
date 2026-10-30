@@ -138,9 +138,21 @@ This project is licensed under the MIT License.
 
 ## Publishing this CLI
 
-The GitHub Actions workflow at `.github/workflows/publish.yml` automatically publishes to npm when changes affecting the published package are pushed to `main`. It watches the CLI source, templates, build configuration, package manifests, and this README; changes only to the workflow or unrelated repository files do not trigger a publish.
+The GitHub Actions workflow at `.github/workflows/publish.yml` automatically **stages** the package on npm when changes affecting the published package are pushed to `main`. It watches the CLI source, templates, build configuration, package manifests, and this README; changes only to the workflow or unrelated repository files do not trigger it. A staged package is not public until a maintainer approves it with two-factor authentication.
 
-Before each publish, increment the version in both `package.json` and `package-lock.json`. npm does not allow publishing the same version twice. Commit the version bump together with the package changes and push to `main`. The workflow checks that the version is new, builds the CLI, and publishes it using npm Trusted Publishing.
+### Release steps
+
+1. Increment the version in both `package.json` and `package-lock.json`. npm does not allow publishing the same version twice.
+2. Commit the version bump together with your package changes and push to `main`.
+3. Check the **Actions** tab. The workflow checks that the version is new, builds the CLI, and stages it using npm Trusted Publishing.
+4. Approve the staged package with 2FA, either:
+   - on npmjs.com: open `@solirius/create-cypress`, go to the **Staged Packages** tab, review it, and click **Approve**; or
+   - from a terminal: `npm stage list @solirius/create-cypress`, then `npm stage approve <stage-id>`.
+5. Confirm the new version is live: `npm view @solirius/create-cypress version`.
+
+Only members of the `@solirius` scope with 2FA can approve, so nothing reaches users without an authorised person's sign-off.
+
+### Trusted Publishing setup
 
 Trusted Publishing must be configured in the npm settings for `@solirius/create-cypress`:
 
@@ -149,18 +161,22 @@ Trusted Publishing must be configured in the npm settings for `@solirius/create-
 - Repository: `cypress-scaffold`
 - Workflow filename: `publish.yml`
 - Environment: leave unset unless you add an environment to the workflow
+- Allowed actions: stage only (`npm stage publish`)
 
-The workflow uses Node 24, which bundles npm 11 (Trusted Publishing needs npm 11.5.1 or newer). If the publish fails with `E404`, the usual causes are an older npm, or a Trusted Publisher entry that doesn't exactly match the owner, repository, and workflow filename above (all case-sensitive).
+The workflow installs npm 11, because Trusted Publishing needs npm 11.5.1 or newer and `npm stage` needs a recent npm 11 release. Troubleshooting:
+
+- `E404`: npm is too old, or the Trusted Publisher entry doesn't exactly match the owner, repository, and workflow filename above (all case-sensitive).
+- `E403 - OIDC permission denied for this action`: the entry doesn't allow the action being run. A stage-only entry allows `npm stage publish` but not `npm publish`.
 
 ### Restricting who can publish
 
-To allow only 2FA-enabled members of the `@solirius` scope (plus this workflow) to publish:
-
 1. In the npm organization settings, require two-factor authentication for all members.
-2. In the package's **Settings → Publishing access**, choose **Require two-factor authentication and disallow tokens**. Trusted Publishing from GitHub Actions keeps working because it uses short-lived OIDC credentials rather than tokens.
-3. Limit who has write access to the package and to this GitHub repository's `main` branch (for example, with branch protection), since a push to `main` can trigger a publish.
+2. In the package's **Settings → Publishing access**, choose **Require two-factor authentication and disallow tokens**. Trusted Publishing keeps working because it uses short-lived OIDC credentials rather than tokens.
+3. Limit who has write access to the package and protect this repository's `main` branch (for example, with branch protection).
 
-For a manual publish instead of using GitHub Actions, use an npm account with permission to publish to the `@solirius` scope. Enable two-factor authentication for publishing in your npm account settings, then run:
+### Manual publish
+
+To bypass GitHub Actions, use an npm account with permission to publish to the `@solirius` scope and 2FA enabled, then run:
 
 ```sh
 npm login

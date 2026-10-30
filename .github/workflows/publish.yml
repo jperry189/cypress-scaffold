@@ -30,10 +30,11 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
-      - name: Verify npm supports Trusted Publishing (11.5.1 or newer)
+      - name: Install npm with staged publishing support
         run: |
+          npm install -g npm@11
           npm --version
-          node -e "const [a,b,c]=process.argv[1].split('.').map(Number); if (a<11 || (a===11 && (b<5 || (b===5 && c<1)))) { console.error('::error::npm ' + process.argv[1] + ' is too old for Trusted Publishing; need 11.5.1 or newer.'); process.exit(1); }" "$(npm --version)"
+          npm stage --help > /dev/null
 
       - name: Install dependencies
         run: npm ci
@@ -47,5 +48,5 @@ jobs:
             exit 1
           fi
 
-      - name: Publish package
-        run: npm publish --provenance --access public
+      - name: Stage package for approval
+        run: npm stage publish --provenance --access public
