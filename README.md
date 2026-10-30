@@ -15,6 +15,8 @@ npm init @solirius/cypress
 
 The command prompts for a project folder name, JavaScript or TypeScript, and whether to include Prettier and ESLint. It creates that folder inside the current repository and installs its dependencies. **Run it inside the repository you want to use**; running it elsewhere creates the project outside that repository.
 
+You don't need to use `@latest`. When the command finishes, it clears npm's npx cache (`~/.npm/_npx`), so the next run downloads the newest version. This clears cached npx packages for other tools too; npx re-downloads them the next time they're run. The cache is cleared after the run, so if you have an older copy cached from before this behaviour existed, delete `~/.npm/_npx` once.
+
 When setup finishes, enter the new project:
 
 ```sh

@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
@@ -13,9 +14,23 @@ function cancelIfNeeded(value: boolean | symbol): boolean;
 function cancelIfNeeded(value: string | boolean | symbol): string | boolean {
   if (typeof value === 'symbol') {
     p.cancel('Operation cancelled.');
+    clearNpxCache();
     return process.exit(0);
   }
   return value;
+}
+
+// npx caches packages in <npm cache>/_npx and `npm cache clean` doesn't touch it, so remove it
+// to make the next `npm init @solirius/cypress` download the latest version.
+function clearNpxCache(): void {
+  const npmCache = process.env.npm_config_cache ?? path.join(os.homedir(), '.npm');
+  try {
+    const npxCache = fs.realpathSync(path.join(npmCache, '_npx'));
+    if (!templatesDir.startsWith(`${npxCache}${path.sep}`)) return;
+    fs.rmSync(npxCache, { recursive: true, force: true });
+  } catch {
+    // Best effort: a stale cache must never fail a successful scaffold.
+  }
 }
 
 async function main(): Promise<void> {
@@ -115,4 +130,8 @@ async function main(): Promise<void> {
   p.outro(`Done. Start with ${chalk.cyan(startCommand)}`);
 }
 
-await main();
+try {
+  await main();
+} finally {
+  clearNpxCache();
+}
