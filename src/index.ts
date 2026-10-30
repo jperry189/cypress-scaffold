@@ -8,7 +8,9 @@ import { execa } from 'execa';
 
 const templatesDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../templates');
 
-function cancelIfNeeded(value: string | symbol): string {
+function cancelIfNeeded(value: string | symbol): string;
+function cancelIfNeeded(value: boolean | symbol): boolean;
+function cancelIfNeeded(value: string | boolean | symbol): string | boolean {
   if (typeof value === 'symbol') {
     p.cancel('Operation cancelled.');
     return process.exit(0);
@@ -18,6 +20,15 @@ function cancelIfNeeded(value: string | symbol): string {
 
 async function main(): Promise<void> {
   p.intro(chalk.bold('@solirius/create-cypress'));
+  p.note(
+    [
+      '• It creates a ready-to-run Cypress testing project',
+      '• Choose between JavaScript or TypeScript (with type checking)',
+      '• Add Prettier and ESLint if you want them',
+      '• When setup finishes, run "npm run cy:open" to get started',
+    ].join('\n'),
+    'What this tool does:'
+  );
   const projectName = cancelIfNeeded(
     await p.text({
       message: 'What is your project named?',
@@ -39,11 +50,23 @@ async function main(): Promise<void> {
 
   const language = cancelIfNeeded(
     await p.select({
-      message: 'Choose a language',
+      message: 'Choose a language for your Cypress tests',
       options: [
-        { value: 'typescript', label: 'TypeScript (recommended)' },
-        { value: 'javascript', label: 'JavaScript' },
+        { value: 'typescript', label: 'TypeScript — .ts tests + type checking' },
+        { value: 'javascript', label: 'JavaScript — .js tests' },
       ],
+    })
+  );
+  const includePrettier = cancelIfNeeded(
+    await p.confirm({
+      message: 'Add Prettier for code formatting?',
+      initialValue: true,
+    })
+  );
+  const includeEslint = cancelIfNeeded(
+    await p.confirm({
+      message: 'Add ESLint for JavaScript and Cypress checks?',
+      initialValue: true,
     })
   );
 
@@ -51,8 +74,26 @@ async function main(): Promise<void> {
   fs.cpSync(path.join(templatesDir, language), targetDir, { recursive: true });
   fs.renameSync(path.join(targetDir, 'gitignore'), path.join(targetDir, '.gitignore'));
   const projectPackageJson = path.join(targetDir, 'package.json');
-  const projectPackage = JSON.parse(fs.readFileSync(projectPackageJson, 'utf8')) as { name: string };
+  const projectPackage = JSON.parse(fs.readFileSync(projectPackageJson, 'utf8')) as {
+    name: string;
+    devDependencies: Record<string, string>;
+    scripts: Record<string, string>;
+  };
   projectPackage.name = projectName;
+  if (!includePrettier) {
+    delete projectPackage.devDependencies.prettier;
+    delete projectPackage.scripts.format;
+    delete projectPackage.scripts['format:check'];
+    fs.rmSync(path.join(targetDir, '.prettierrc.json'));
+  }
+  if (!includeEslint) {
+    delete projectPackage.devDependencies['@eslint/js'];
+    delete projectPackage.devDependencies.eslint;
+    delete projectPackage.devDependencies['eslint-plugin-cypress'];
+    delete projectPackage.devDependencies['typescript-eslint'];
+    delete projectPackage.scripts.lint;
+    fs.rmSync(path.join(targetDir, 'eslint.config.mjs'));
+  }
   fs.writeFileSync(projectPackageJson, `${JSON.stringify(projectPackage, null, 2)}\n`);
   fs.writeFileSync(path.join(targetDir, '.nvmrc'), `${process.versions.node.split('.')[0]}\n`);
 
