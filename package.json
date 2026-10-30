@@ -20,8 +20,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "format": "prettier --write \"src/**/*.ts\" \"bin/**/*.js\" \"templates/**/*.{js,ts,json}\" \"*.js\"",
-    "format:check": "prettier --check \"src/**/*.ts\" \"bin/**/*.js\" \"templates/**/*.{js,ts,json}\" \"*.js\"",
+    "format": "prettier --write \"src/**/*.ts\" \"bin/**/*.js\" \"templates/**/*.{js,mjs,ts,json}\" \"*.js\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"bin/**/*.js\" \"templates/**/*.{js,mjs,ts,json}\" \"*.js\"",
     "prepublishOnly": "npm run build"
   },
   "publishConfig": {
