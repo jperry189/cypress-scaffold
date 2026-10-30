@@ -5,10 +5,9 @@ Create a ready-to-run Cypress end-to-end testing project in a few prompts. Choos
 ## Features
 
 - **Quick setup:** Generate a Cypress project from the command line.
-- **TypeScript or JavaScript:** Choose the language for your test files; the prompt explains what each option includes.
+- **Language choice:** Select JavaScript or TypeScript during setup.
 - **Ready-to-run configuration:** Includes Cypress configuration and an example end-to-end test.
 - **Optional ESLint and Prettier:** Choose whether to include either tool; selected tools are installed automatically with ready-to-use configuration and scripts.
-- **Type checking:** TypeScript projects include a type-checking script.
 
 ## Getting Started
 
@@ -160,17 +159,29 @@ npm run build
 npm publish --access public
 ```
 
-Follow the npm prompt for your two-factor authentication code. Do not commit or share an npm token or one-time code.
+If npm returns `EOTP`, retry with the current numeric code from your authenticator app:
+
+```sh
+npm publish --access public --otp=123456
+```
+
+Replace `123456` with your current code; it is not sent by email or text. Never commit or share an npm token or one-time code.
 
 ## Local development
 
-To build and run the CLI from a local checkout (instead of the published npm package):
+To build the CLI from a local checkout (instead of using the published npm package):
 
 ```sh
+cd /path/to/cypress-scaffold
 npm install
 npm run build
 npm run format:check
-node bin/cli.js
 ```
 
-Run `node bin/cli.js` from the parent directory where you want the generated project created.
+Then run the built CLI from the parent directory where you want the generated project created:
+
+```sh
+node /path/to/cypress-scaffold/bin/cli.js
+```
+
+Replace `/path/to/cypress-scaffold` with the checkout's actual path.
