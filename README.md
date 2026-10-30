@@ -140,6 +140,8 @@ This project is licensed under the MIT License.
 
 Publishing uses a two-step process: GitHub Actions uploads a **staged release** to npm, then an authorised maintainer reviews and approves that stage. **A successful workflow run does not publish the package for users to install. The new version becomes available only after approval.**
 
+Husky runs a local pre-commit check when you commit changes to files that trigger the publishing workflow. It checks the current package version against npm and blocks the commit if that version is already published. The check needs access to the npm registry; if the registry cannot be reached, it fails with an error rather than assuming the version is available. You can run it manually with `npm run check:published-version`.
+
 The workflow in `.github/workflows/publish.yml` runs when changes to the CLI source, templates, build configuration, package manifests, or this README are pushed to `main`. Changes only to the workflow file or unrelated repository files do not trigger it. When triggered, it installs dependencies, checks that the package version has not already been published, and runs `npm stage publish` using npm Trusted Publishing. This uploads the package to npm's staged packages area without making it the public release.
 
 ### Release steps
