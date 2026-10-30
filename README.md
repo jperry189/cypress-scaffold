@@ -150,6 +150,16 @@ Trusted Publishing must be configured in the npm settings for `@solirius/create-
 - Workflow filename: `publish.yml`
 - Environment: leave unset unless you add an environment to the workflow
 
+The workflow uses Node 24, which bundles npm 11 (Trusted Publishing needs npm 11.5.1 or newer). If the publish fails with `E404`, the usual causes are an older npm, or a Trusted Publisher entry that doesn't exactly match the owner, repository, and workflow filename above (all case-sensitive).
+
+### Restricting who can publish
+
+To allow only 2FA-enabled members of the `@solirius` scope (plus this workflow) to publish:
+
+1. In the npm organization settings, require two-factor authentication for all members.
+2. In the package's **Settings → Publishing access**, choose **Require two-factor authentication and disallow tokens**. Trusted Publishing from GitHub Actions keeps working because it uses short-lived OIDC credentials rather than tokens.
+3. Limit who has write access to the package and to this GitHub repository's `main` branch (for example, with branch protection), since a push to `main` can trigger a publish.
+
 For a manual publish instead of using GitHub Actions, use an npm account with permission to publish to the `@solirius` scope. Enable two-factor authentication for publishing in your npm account settings, then run:
 
 ```sh
