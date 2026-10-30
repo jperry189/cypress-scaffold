@@ -139,19 +139,11 @@ This project is licensed under the MIT License.
 
 ## Publishing this CLI
 
-The GitHub Actions workflow at `.github/workflows/publish.yml` publishes to npm when a GitHub Release is published. The release tag must match the version in `package.json` (for example, version `1.0.1` requires the tag `v1.0.1`). npm does not allow publishing the same package version twice.
+The GitHub Actions workflow at `.github/workflows/publish.yml` automatically publishes to npm when changes affecting the published package are pushed to `main`. It watches the CLI source, templates, build configuration, package manifests, and this README; changes only to the workflow or unrelated repository files do not trigger a publish.
 
-For the first release, publish locally from an npm account that can publish to the `@solirius` scope. The scope must belong to an npm organization or account where you have publish permission. Enable two-factor authentication for publishing in your npm account settings, then run:
+Before each publish, increment the version in both `package.json` and `package-lock.json`. npm does not allow publishing the same version twice. Commit the version bump together with the package changes and push to `main`. The workflow checks that the version is new, builds the CLI, and publishes it using npm Trusted Publishing.
 
-```sh
-npm login
-npm whoami
-npm publish --access public
-```
-
-Follow the npm prompt for your two-factor authentication code. Do not commit or share an npm token or one-time code.
-
-After the first local publish creates the package on npm, configure a trusted publisher for `@solirius/create-cypress` in the package's npm settings:
+Trusted Publishing must be configured in the npm settings for `@solirius/create-cypress`:
 
 - Provider: GitHub Actions
 - Organisation or user: `jperry189`
@@ -159,7 +151,16 @@ After the first local publish creates the package on npm, configure a trusted pu
 - Workflow filename: `publish.yml`
 - Environment: leave unset unless you add an environment to the workflow
 
-For subsequent releases, update the version in `package.json`, push the change, create a GitHub Release with the matching `v`-prefixed tag, and publish the release. GitHub Actions then publishes through npm Trusted Publishing and GitHub OIDC, without storing an npm access token in GitHub. The GitHub repository and workflow must match the trusted publisher configuration above.
+For a manual publish instead of using GitHub Actions, use an npm account with permission to publish to the `@solirius` scope. Enable two-factor authentication for publishing in your npm account settings, then run:
+
+```sh
+npm login
+npm whoami
+npm run build
+npm publish --access public
+```
+
+Follow the npm prompt for your two-factor authentication code. Do not commit or share an npm token or one-time code.
 
 ## Local development
 
