@@ -18,13 +18,13 @@ Create a ready-to-run Cypress end-to-end testing project in a few prompts. Choos
 
 ### Create a project with npm
 
-Run this in the parent directory where you want your new project folder created:
+First, open a terminal at the root of an existing Git repository where you want the new project folder to live. Then run:
 
 ```sh
 npm init @solirius/cypress
 ```
 
-The CLI asks for a project name, a language, and whether to include Prettier and ESLint:
+The CLI creates a new project folder inside the current repository. It asks for a project folder name, a language, and whether to include Prettier and ESLint:
 
 - **TypeScript** creates `.ts` tests and configuration, and adds a `typecheck` script.
 - **JavaScript** creates `.js` tests and does not add TypeScript or type checking.
@@ -138,19 +138,20 @@ This project is licensed under the MIT License.
 
 ## Publishing this CLI
 
-The GitHub Actions workflow at `.github/workflows/publish.yml` automatically **stages** the package on npm when changes affecting the published package are pushed to `main`. It watches the CLI source, templates, build configuration, package manifests, and this README; changes only to the workflow or unrelated repository files do not trigger it. A staged package is not public until a maintainer approves it with two-factor authentication.
+Publishing uses a two-step process: GitHub Actions uploads a **staged release** to npm, then an authorised maintainer reviews and approves that stage. **A successful workflow run does not publish the package for users to install. The new version becomes available only after approval.**
+
+The workflow in `.github/workflows/publish.yml` runs when changes to the CLI source, templates, build configuration, package manifests, or this README are pushed to `main`. Changes only to the workflow file or unrelated repository files do not trigger it. When triggered, it installs dependencies, checks that the package version has not already been published, and runs `npm stage publish` using npm Trusted Publishing. This uploads the package to npm's staged packages area without making it the public release.
 
 ### Release steps
 
-1. Increment the version in both `package.json` and `package-lock.json`. npm does not allow publishing the same version twice.
-2. Commit the version bump together with your package changes and push to `main`.
-3. Check the **Actions** tab. The workflow checks that the version is new, builds the CLI, and stages it using npm Trusted Publishing.
-4. Approve the staged package with 2FA, either:
-   - on npmjs.com: open `@solirius/create-cypress`, go to the **Staged Packages** tab, review it, and click **Approve**; or
-   - from a terminal: `npm stage list @solirius/create-cypress`, then `npm stage approve <stage-id>`.
-5. Confirm the new version is live: `npm view @solirius/create-cypress version`.
+1. **Choose a new version.** Update the `version` in both `package.json` and `package-lock.json`. npm does not allow the same version to be published twice.
+2. **Push the release to `main`.** Commit the version bump along with the intended package changes.
+3. **Wait for staging.** In the repository's GitHub **Actions** tab, confirm the publish workflow completed successfully. A failed run means there is no stage to approve. A successful run means the package is waiting for approval, not that it is already public.
+4. **Review and approve the stage.** An authorised member of the `@solirius` npm scope must approve it with 2FA. Either:
+   - On npmjs.com, open the `@solirius/create-cypress` package, go to **Staged Packages**, inspect the staged version, and select **Approve**.
+5. **Verify publication.** After approval, confirm the released version with `npm view @solirius/create-cypress version`. Users can then run `npm init @solirius/cypress` to use the published package.
 
-Only members of the `@solirius` scope with 2FA can approve, so nothing reaches users without an authorised person's sign-off.
+Do not leave a stage pending if you intend the release to be available: it remains unpublished until approved. Only members of the `@solirius` scope with 2FA can approve, so a workflow run alone cannot release a package to users.
 
 ### Trusted Publishing setup
 

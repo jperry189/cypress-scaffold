@@ -22,6 +22,9 @@ async function main(): Promise<void> {
   p.intro(chalk.bold('@solirius/create-cypress'));
   p.note(
     [
+      '⚠️ Run this command from the root of an existing Git repository.',
+      'It creates a new project folder inside that repository; otherwise, it will not appear in the repository’s source control.',
+      '',
       '• It creates a ready-to-run Cypress testing project',
       '• Choose between JavaScript or TypeScript (with type checking)',
       '• Add Prettier and ESLint if you want them',
@@ -31,7 +34,7 @@ async function main(): Promise<void> {
   );
   const projectName = cancelIfNeeded(
     await p.text({
-      message: 'What is your project named?',
+      message: 'What should the new project folder be named?',
       placeholder: 'my-cypress-project',
       defaultValue: 'my-cypress-project',
       validate(value) {
