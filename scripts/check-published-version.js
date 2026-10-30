@@ -1,5 +1,4 @@
 import { execFileSync, spawnSync } from 'node:child_process';
-import fs from 'node:fs';
 
 const publishPaths = [
   'src/',
@@ -20,7 +19,30 @@ if (!stagedFiles.some((file) => publishPaths.some((path) => file === path || fil
   process.exit(0);
 }
 
-const { name, version } = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+const stagedPackage = JSON.parse(execFileSync('git', ['show', ':package.json'], { encoding: 'utf8' }));
+const stagedLock = JSON.parse(execFileSync('git', ['show', ':package-lock.json'], { encoding: 'utf8' }));
+const { name, version } = stagedPackage;
+const baseCommit = spawnSync('git', ['merge-base', 'HEAD', 'origin/main'], { encoding: 'utf8' });
+const comparisonRef = baseCommit.status === 0 ? baseCommit.stdout.trim() : 'HEAD';
+const basePackage = JSON.parse(
+  execFileSync('git', ['show', `${comparisonRef}:package.json`], { encoding: 'utf8' })
+);
+
+if (
+  stagedPackage.version !== stagedLock.version ||
+  stagedPackage.version !== stagedLock.packages[''].version
+) {
+  console.error('The staged versions in package.json and package-lock.json must match.');
+  process.exit(1);
+}
+
+if (stagedPackage.version === basePackage.version) {
+  console.error(
+    `\nThe package version has not changed from ${comparisonRef === 'HEAD' ? 'HEAD' : 'the branch base'}. Bump the version in package.json and package-lock.json before committing release-related changes.`
+  );
+  process.exit(1);
+}
+
 const result = spawnSync('npm', ['view', `${name}@${version}`, 'version'], {
   encoding: 'utf8',
 });
