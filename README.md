@@ -4,7 +4,7 @@ Create a ready-to-run Cypress end-to-end testing project in a few prompts. Choos
 
 ## Quick start
 
-- Node.js 20 or later
+- Node.js 20.12 or later
 - npm
 
 From the root of the existing Git repository where you want the project created, run:
@@ -119,11 +119,18 @@ The workflow in `.github/workflows/publish.yml` runs when changes to the CLI sou
 
 ### Release steps
 
-1. In your pull request, increment the version in both `package.json` and `package-lock.json`. The Husky pre-commit check blocks commits that change release-triggering files—including this README—without a version bump, with mismatched package versions, or with a version already published to npm. It needs npm registry access; run `npm run check:published-version` to check manually.
-2. Get the pull request reviewed and approved, then merge it to `main`. Changes to the CLI source, templates, build configuration, package manifests, or this README trigger `.github/workflows/publish.yml`.
-3. Check GitHub **Actions** for a successful workflow run. It stages the package on npm; it does **not** make the release public.
-4. An authorized `@solirius` maintainer reviews the staged version on npmjs.com under **Staged Packages** and approves it with 2FA. Approval publishes the release.
-5. Verify the release with `npm view @solirius/create-cypress version`. Users can then run `npm init @solirius/cypress`.
+1. Choose the next unused semantic version. Use `patch` for backward-compatible fixes, `minor` for backward-compatible features, or `major` for breaking changes. To prepare a patch release without creating a local git commit or tag, run:
+
+   ```sh
+   npm version patch --no-git-tag-version
+   ```
+
+   This updates the version in both `package.json` and `package-lock.json`. For a minor or major release, replace `patch` with `minor` or `major`. If a version is already staged or published, choose a later unused version instead.
+2. In your pull request, include the updated manifests. The Husky pre-commit check blocks commits that change release-triggering files—including this README—without a version bump, with mismatched package versions, or with a version already published to npm. It needs npm registry access; run `npm run check:published-version` to check manually.
+3. Get the pull request reviewed and approved, then merge it to `main`. Changes to the CLI source, templates, build configuration, package manifests, or this README trigger `.github/workflows/publish.yml`.
+4. Open GitHub **Actions**, select the run for the push to `main`, and confirm that **Stage package for approval** succeeded. This stages the package on npm; it does **not** make the release public.
+5. Sign in to [npmjs.com](https://www.npmjs.com/), open **Staged Packages**, and locate the package version. Verify its package name, version, publisher, and shasum against the workflow/email before approving. Wait for npm's validation to finish if approval is not yet available. An authorized `@solirius` maintainer can then click **Approve** and complete the 2FA prompt; approval publishes the release. Reject the stage instead if its details are unexpected.
+6. Verify the release with `npm view @solirius/create-cypress version`. Users can then run `npm init @solirius/cypress`.
 
 If staging fails, resolve the workflow error first. If the version is already published, increment it in both package files and submit the update through a new pull request.
 

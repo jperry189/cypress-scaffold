@@ -1,6 +1,6 @@
 {
   "name": "@solirius/create-cypress",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "CLI to scaffold a Cypress test project",
   "keywords": [
     "create",
